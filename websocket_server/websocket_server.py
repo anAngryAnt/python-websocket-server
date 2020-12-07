@@ -125,6 +125,7 @@ class WebsocketServer(ThreadingMixIn, TCPServer, API):
         logger.setLevel(loglevel)
         TCPServer.__init__(self, (host, port), WebSocketHandler)
         self.port = self.socket.getsockname()[1]
+        self.allow_connection_strategy = None
 
     def _message_received_(self, handler, msg):
         self.message_received(self.handler_to_client(handler), self, msg)
@@ -147,7 +148,7 @@ class WebsocketServer(ThreadingMixIn, TCPServer, API):
         self.new_client(client, self)
 
     def _allow_connection_strategy(self, handler):
-        return self.allow_connection_strategy(handler)
+        return self.allow_connection_strategy and self.allow_connection_strategy(handler)
 
     def _client_left_(self, handler):
         client = self.handler_to_client(handler)
@@ -336,7 +337,9 @@ class WebSocketHandler(StreamRequestHandler):
             self.keep_alive = False
             return
 
-        if not self.server._allow_connection_strategy(self):
+        allow = self.server._allow_connection_strategy
+
+        if allow == False:
             response = self.make_handshake_abort_response()
             self.handshake_done = self.request.send(response.encode())
             self.keep_alive = False
