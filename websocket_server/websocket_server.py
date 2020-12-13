@@ -337,7 +337,7 @@ class WebSocketHandler(StreamRequestHandler):
             self.keep_alive = False
             return
 
-        allow = self.server._allow_connection_strategy
+        allow = self.server._allow_connection_strategy(headers)
 
         if allow == False:
             response = self.make_handshake_abort_response()
