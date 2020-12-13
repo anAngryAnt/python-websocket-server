@@ -147,8 +147,8 @@ class WebsocketServer(ThreadingMixIn, TCPServer, API):
         self.clients.append(client)
         self.new_client(client, self)
 
-    def _allow_connection_strategy(self, handler):
-        return self.allow_connection_strategy and self.allow_connection_strategy(handler)
+    def _allow_connection_strategy(self, headers):
+        return self.allow_connection_strategy and self.allow_connection_strategy(headers)
 
     def _client_left_(self, handler):
         client = self.handler_to_client(handler)
